@@ -31,22 +31,6 @@ def mamlpp_update(model, step=None, lrs=None, grads=None):
     ~~~python
     maml_pp = l2l.algorithms.MAMLpp(Model(), lr=1.0)
     lslr = torch.nn.ParameterDict()
-    for layer_name, layer in model.named_modules():
-        # If the layer has learnable parameters
-        if (
-            len(
-                [
-                    name
-                    for name, param in layer.named_parameters(recurse=False)
-                    if param.requires_grad
-                ]
-            )
-            > 0
-        ):
-            lslr[layer_name.replace(".", "-")] = torch.nn.Parameter(
-                data=torch.ones(adaptation_steps) * init_lr,
-                requires_grad=True,
-            )
     model = maml_pp.clone() # The next two lines essentially implement model.adapt(loss)
     for inner_step in range(5):
         loss = criterion(model(x), y)
@@ -55,32 +39,10 @@ def mamlpp_update(model, step=None, lrs=None, grads=None):
     ~~~
     """
     if grads is not None and lrs is not None:
-        params = list(model.parameters())
-        if not len(grads) == len(list(params)):
-            msg = "WARNING:maml_update(): Parameters and gradients have different length. ("
-            msg += str(len(params)) + " vs " + str(len(grads)) + ")"
-            print(msg)
-        # TODO: Why doesn't this work?? I can't assign p.grad when zipping like this... Is this
-        # because I'm using a tuple?
-        # for named_param, g in zip(
-            # [(k, v) for k, l in model.named_parameters() for v in l], grads
-        # ):
-            # p_name, p = named_param
-        it = 0
-        for name, p in model.named_parameters():
-            if grads[it] is not None:
-                lr = None
-                layer_name = name[: name.rfind(".")].replace(".", "-")  # Extract the layer name from the named parameter
-                lr = lrs[layer_name][step]
-                assert (lr is not None), f"Parameter {name} does not have a learning rate in LSLR dict!"
-                p.grad = grads[it]
-                p._lr = lr
-            it += 1
-
-    if grads is not None and lrs is not None:
-        for p, lr, g in zip(model.parameters(), lrs, grads):
+        for (pname, p), g in zip(model.named_parameters(), grads):
+            lyname = pname.rsplit(".")[0]
             p.grad = g
-            p._lr = lr
+            p._lr = lrs[lyname][step]
 
     # Update the params
     for param_key in model._parameters:
@@ -106,7 +68,7 @@ def mamlpp_update(model, step=None, lrs=None, grads=None):
 
 class MAMLpp(BaseLearner):
     """
-    [[Source]](https://github.com/learnables/learn2learn/blob/master/learn2learn/algorithms/maml.py)
+    [[Source]](https://github.com/learnables/learn2learn/blob/master/learn2learn/algorithms/mamlpp.py)
 
     **Description**
 
