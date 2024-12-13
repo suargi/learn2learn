@@ -5,7 +5,7 @@ import torch
 from torch.autograd import grad
 
 from learn2learn.algorithms.base_learner import BaseLearner
-from learn2learn.utils import clone_module, update_module, clone_named_parameters
+from learn2learn.utils import clone_module, clone_named_parameters
 
 
 def mamlpp_update(model, step=None, lrs=None, grads=None):
