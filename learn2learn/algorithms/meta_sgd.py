@@ -140,6 +140,15 @@ class MetaSGD(BaseLearner):
                          create_graph=second_order)
         self.module = meta_sgd_update(self.module, self.lrs, gradients)
 
+    def save(self, path: str) -> None:
+        """
+        Save the model and the learning rates on a pytorch file
+        """
+        torch.save({
+            "model": self.module.state_dict(),
+            "lrs": self.lrs.state_dict()
+            }, path)
+
 
 if __name__ == '__main__':
     linear = nn.Sequential(nn.Linear(10, 2), nn.Linear(5, 5))

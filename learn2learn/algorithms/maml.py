@@ -200,3 +200,11 @@ class MAML(BaseLearner):
                     first_order=first_order,
                     allow_unused=allow_unused,
                     allow_nograd=allow_nograd)
+
+    def save(self, path: str) -> None:
+        """
+        Save the model on a pytorch file
+        """
+        torch.save({
+            "model": self.module.state_dict(),
+            }, path)

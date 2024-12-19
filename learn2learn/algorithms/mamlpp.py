@@ -89,7 +89,7 @@ class MAMLpp(BaseLearner):
 
     def __init__(self,
                  model,
-                 lr,
+                 lr=None,
                  lrs=None,
                  adaptation_steps=1,
                  first_order=False,
@@ -219,3 +219,13 @@ class MAMLpp(BaseLearner):
                       allow_unused=allow_unused,
                       allow_nograd=allow_nograd,
         )
+
+    def save(self, path: str) -> None:
+        """
+        Save the model and the learning rates on a pytorch file
+        """
+        torch.save({
+            "model": self.module.state_dict(),
+            "lrs": self.lrs.state_dict()
+            }, path)
+    
