@@ -94,7 +94,8 @@ class MAMLpp(BaseLearner):
                  adaptation_steps=1,
                  first_order=False,
                  allow_unused=None,
-                 allow_nograd=False):
+                 allow_nograd=False,
+                 checkpoint=None):
         super().__init__()
         self.module = model
         self.lr = lr
@@ -106,6 +107,11 @@ class MAMLpp(BaseLearner):
         if allow_unused is None:
             allow_unused = allow_nograd
         self.allow_unused = allow_unused
+        
+        if checkpoint is not None:
+            chk = torch.load(checkpoint, weights_only=True)
+            self.module.load_state_dict(chk["model"])
+            self.lrs.load_state_dict(chk["lrs"])
 
     def _init_lslr_parameters(self, model: torch.nn.Module, adaptation_steps: int, init_lr: float) -> torch.nn.ParameterDict:
         """

@@ -101,7 +101,7 @@ class MetaSGD(BaseLearner):
     ~~~
     """
 
-    def __init__(self, model, lr=1.0, first_order=False, lrs=None):
+    def __init__(self, model, lr=1.0, first_order=False, lrs=None, checkpoint=None):
         super(MetaSGD, self).__init__()
         self.module = model
         if lrs is None:
@@ -109,6 +109,10 @@ class MetaSGD(BaseLearner):
             lrs = nn.ParameterList([nn.Parameter(lr) for lr in lrs])
         self.lrs = lrs
         self.first_order = first_order
+        if checkpoint is not None:
+            chk = th.load(checkpoint, weights_only=True)
+            self.module.load_state_dict(chk["model"])
+            self.lrs.load_state_dict(chk["lrs"])
 
     def forward(self, *args, **kwargs):
         return self.module(*args, **kwargs)
@@ -142,9 +146,9 @@ class MetaSGD(BaseLearner):
 
     def save(self, path: str) -> None:
         """
-        Save the model and the learning rates on a pytorch file
+        Save the model and the learning rates on a pyth file
         """
-        torch.save({
+        th.save({
             "model": self.module.state_dict(),
             "lrs": self.lrs.state_dict()
             }, path)

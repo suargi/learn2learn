@@ -93,7 +93,8 @@ class MAML(BaseLearner):
                  lr,
                  first_order=False,
                  allow_unused=None,
-                 allow_nograd=False):
+                 allow_nograd=False,
+                 checkpoint=None):
         super(MAML, self).__init__()
         self.module = model
         self.lr = lr
@@ -102,6 +103,10 @@ class MAML(BaseLearner):
         if allow_unused is None:
             allow_unused = allow_nograd
         self.allow_unused = allow_unused
+        
+        if checkpoint is not None:
+            chk = torch.load(checkpoint, weights_only=True)
+            self.module.load_state_dict(chk["model"])
 
     def forward(self, *args, **kwargs):
         return self.module(*args, **kwargs)
