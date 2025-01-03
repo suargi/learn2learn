@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import traceback
+import torch
 from torch.autograd import grad
 
 from learn2learn.algorithms.base_learner import BaseLearner
@@ -71,6 +72,8 @@ class MAML(BaseLearner):
         of unused parameters. Defaults to `allow_nograd`.
     * **allow_nograd** (bool, *optional*, default=False) - Whether to allow adaptation with
         parameters that have `requires_grad = False`.
+    * **checkpoint** (dictionary, *optional*, default=None) - Load the model from a checkpoint
+        file
 
     **References**
 

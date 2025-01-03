@@ -152,9 +152,3 @@ class MetaSGD(BaseLearner):
             "model": self.module.state_dict(),
             "lrs": self.lrs.state_dict()
             }, path)
-
-
-if __name__ == '__main__':
-    linear = nn.Sequential(nn.Linear(10, 2), nn.Linear(5, 5))
-    msgd = MetaSGD(linear, lr=0.001)
-    learner = msgd.new()
